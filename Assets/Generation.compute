@@ -1,0 +1,25 @@
+﻿// Each #kernel tells which function to compile; you can have many kernels
+#pragma kernel CSMain
+#pragma target 3.0
+#include "noiseSimplex.cginc"
+
+// Create a RenderTexture with enableRandomWrite flag and set it
+// with cs.SetTexture
+RWTexture2D<float4> Result;
+int octaves;
+float lacunarity;
+float persistence;
+float scaling;
+float tX;
+float tY;
+float tZ;
+float oZ;
+
+[numthreads(21, 21, 1)]
+void CSMain(uint3 id : SV_DispatchThreadID)
+{
+	Result[id.xy] = 0;
+	for (uint i = 0; i < octaves; i++) {
+		Result[id.xy] += snoise(float3(((id.x + tX) * scaling) * pow(lacunarity, i) + 0.5f, ((id.y + tY) * scaling) * pow(lacunarity, i) + 0.5f, ((oZ + tZ) * scaling) * pow(lacunarity, i) + 0.5f)) * pow(persistence, i);
+	}
+}
